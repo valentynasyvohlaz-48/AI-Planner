@@ -1,13 +1,17 @@
 'use client'
 
-import { Task, usePlannerStore } from '@/store/usePlannerStore'
+import { Task, usePlannerStore, LifeArea } from '@/store/usePlannerStore'
 import { useState } from 'react'
 import LifeAreaBadge from './LifeAreaBadge'
+import LifeAreaPicker from './LifeAreaPicker'
 
 export default function TaskCard({ task }: { task: Task }) {
-  const moveToToday    = usePlannerStore((s) => s.moveToToday)
+  const moveToToday     = usePlannerStore((s) => s.moveToToday)
   const deleteFromInbox = usePlannerStore((s) => s.deleteFromInbox)
-  const [removing, setRemoving] = useState(false)
+  const updateTask      = usePlannerStore((s) => s.updateTask)
+
+  const [removing, setRemoving]     = useState(false)
+  const [pickerOpen, setPickerOpen] = useState(false)
 
   const handleMove = () => {
     setRemoving(true)
@@ -17,6 +21,10 @@ export default function TaskCard({ task }: { task: Task }) {
   const handleDelete = () => {
     setRemoving(true)
     setTimeout(() => deleteFromInbox(task.id), 280)
+  }
+
+  const handleAreaChange = (area: LifeArea) => {
+    updateTask(task.id, { lifeArea: area })
   }
 
   const isMust = task.priority === 'must'
@@ -61,13 +69,49 @@ export default function TaskCard({ task }: { task: Task }) {
           </span>
         )}
 
-        <LifeAreaBadge area={task.lifeArea} small />
+        {/* Tappable life area badge */}
+        <button
+          onClick={() => setPickerOpen((o) => !o)}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 3,
+            background: 'none',
+            border: 'none',
+            padding: 0,
+            cursor: 'pointer',
+            borderRadius: 9999,
+          }}
+          title="Змінити категорію"
+        >
+          <LifeAreaBadge area={task.lifeArea} small />
+          <span
+            style={{
+              fontSize: 9,
+              color: 'var(--fg-dim)',
+              opacity: 0.65,
+              lineHeight: 1,
+              marginTop: 1,
+            }}
+          >
+            ✎
+          </span>
+        </button>
       </div>
+
+      {/* Inline category picker */}
+      {pickerOpen && (
+        <LifeAreaPicker
+          value={task.lifeArea}
+          onChange={handleAreaChange}
+          onClose={() => setPickerOpen(false)}
+        />
+      )}
 
       {/* Title */}
       <p
         className="font-medium text-base mb-4 leading-snug"
-        style={{ color: 'var(--fg)' }}
+        style={{ color: 'var(--fg)', marginTop: pickerOpen ? 12 : 0 }}
       >
         {task.title}
       </p>
