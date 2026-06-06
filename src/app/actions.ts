@@ -4,6 +4,9 @@ import { anthropic } from '@/lib/claude'
 import { Task } from '@/store/usePlannerStore'
 
 export async function parseTasksWithClaude(rawText: string): Promise<Task[]> {
+  const apiKey = process.env.ANTHROPIC_API_KEY
+  if (!apiKey) throw new Error('ANTHROPIC_API_KEY is not set in environment variables')
+
   const today = new Date().toLocaleDateString('uk-UA')
 
   const message = await anthropic.messages.create({
