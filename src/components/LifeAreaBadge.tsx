@@ -8,7 +8,7 @@ interface Props {
 }
 
 export default function LifeAreaBadge({ area, small = false }: Props) {
-  if (!area) {
+  if (!area || !AREA_CONFIG[area]) {
     return (
       <span
         style={{

@@ -5,7 +5,7 @@ import { Task, usePlannerStore, AREA_CONFIG } from '@/store/usePlannerStore'
 export default function TaskItem({ task }: { task: Task }) {
   const toggleDone = usePlannerStore((s) => s.toggleDone)
 
-  const areaColor = task.lifeArea ? AREA_CONFIG[task.lifeArea].color : null
+  const areaColor = (task.lifeArea && AREA_CONFIG[task.lifeArea]) ? AREA_CONFIG[task.lifeArea].color : null
 
   return (
     <button

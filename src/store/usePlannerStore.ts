@@ -136,37 +136,50 @@ export const usePlannerStore = create<Store>()(
     }),
     {
       name: 'ai-planner-store',
-      version: 2,
+      version: 3,
       migrate: (persistedState: unknown, version: number) => {
-        const state = persistedState as Partial<Store> & {
-          inbox?: Partial<Task>[]
-          today?: Partial<Task>[]
-          history?: Partial<Task>[]
-        }
-        if (version < 2) {
+        try {
+          const state = persistedState as Partial<Store> & {
+            inbox?: Partial<Task>[]
+            today?: Partial<Task>[]
+            history?: Partial<Task>[]
+          }
+          const patchTask = (t: Partial<Task>): Task => {
+            const validLifeArea = LIFE_AREAS.includes(t.lifeArea as LifeArea)
+              ? (t.lifeArea as LifeArea)
+              : null
+            return {
+              deadline: null,
+              scheduledTime: null,
+              scheduledDate: null,
+              ...t,
+              // Sanitise lifeArea — replace any value not in the known list with null
+              lifeArea: validLifeArea,
+            } as Task
+          }
+
           const patch = (tasks: Partial<Task>[] | undefined): Task[] =>
-            (tasks ?? []).map((t) => {
-              const task = t as Task
-              return Object.assign(
-                {
-                  lifeArea: null,
-                  scheduledTime: null,
-                  scheduledDate: null,
-                  deadline: null,
-                },
-                task
-              ) as Task
-            })
+            (tasks ?? []).map(patchTask)
+
+          // Always patch — sanitises lifeArea on all existing data regardless of version
           return {
             ...state,
             inbox: patch(state.inbox),
             today: patch(state.today),
             history: patch(state.history ?? []),
-            debriefs: state.debriefs ?? [],
+            debriefs: Array.isArray(state.debriefs) ? state.debriefs : [],
             lastDebriefDate: state.lastDebriefDate ?? null,
           } as Store
+        } catch {
+          // If migration crashes for any reason, start fresh
+          return {
+            inbox: [],
+            today: [],
+            history: [],
+            debriefs: [],
+            lastDebriefDate: null,
+          } as unknown as Store
         }
-        return state as Store
       },
     }
   )

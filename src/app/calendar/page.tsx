@@ -81,7 +81,7 @@ const navBtn: CSSProperties = {
 /* ─────────────────── tiny components ─────────────────── */
 
 function TaskPill({ task, compact }: { task: Task; compact?: boolean }) {
-  const color  = task.lifeArea ? AREA_CONFIG[task.lifeArea].color : '#a78bfa'
+  const color  = (task.lifeArea && AREA_CONFIG[task.lifeArea]) ? AREA_CONFIG[task.lifeArea].color : '#a78bfa'
   const top    = minsToY(timeMins(task.scheduledTime!))
   const height = Math.max(compact ? 16 : 30, (task.duration / 60) * HOUR_H - 2)
 
@@ -224,7 +224,7 @@ function DayView({ date, tasks, todayTasks, scheduleTask, replaceToday }: {
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {unscheduled.map(t => {
-              const color = t.lifeArea ? AREA_CONFIG[t.lifeArea].color : '#a78bfa'
+              const color = (t.lifeArea && AREA_CONFIG[t.lifeArea]) ? AREA_CONFIG[t.lifeArea].color : '#a78bfa'
               return (
                 <div key={t.id} style={{ ...glass, borderRadius: 14, padding: '9px 12px', display: 'flex', alignItems: 'center', gap: 10, borderLeft: `3px solid ${color}` }}>
                   <div style={{ flex: 1 }}>
@@ -398,8 +398,8 @@ function MonthView({ date, tasksForDate, onDayClick }: {
                 {tasks.slice(0, 3).map(t => (
                   <div key={t.id} style={{
                     width: 5, height: 5, borderRadius: '50%',
-                    background: t.lifeArea ? AREA_CONFIG[t.lifeArea].color : '#a78bfa',
-                    boxShadow: `0 0 4px ${t.lifeArea ? AREA_CONFIG[t.lifeArea].color : '#a78bfa'}80`,
+                    background: (t.lifeArea && AREA_CONFIG[t.lifeArea]) ? AREA_CONFIG[t.lifeArea].color : '#a78bfa',
+                    boxShadow: `0 0 4px ${(t.lifeArea && AREA_CONFIG[t.lifeArea]) ? AREA_CONFIG[t.lifeArea].color : '#a78bfa'}80`,
                   }} />
                 ))}
                 {tasks.length > 3 && <span style={{ fontSize: 7, color: 'var(--fg-dim)', lineHeight: 1.6 }}>+{tasks.length - 3}</span>}
@@ -468,7 +468,7 @@ function MiniMonth({ year, month, tasksForDate, onClick }: {
                 <div style={{
                   position: 'absolute', bottom: 1, left: '50%', transform: 'translateX(-50%)',
                   width: 3, height: 3, borderRadius: '50%',
-                  background: dayTasks[0].lifeArea ? AREA_CONFIG[dayTasks[0].lifeArea].color : '#a78bfa',
+                  background: (dayTasks[0].lifeArea && AREA_CONFIG[dayTasks[0].lifeArea]) ? AREA_CONFIG[dayTasks[0].lifeArea].color : '#a78bfa',
                 }} />
               )}
             </div>

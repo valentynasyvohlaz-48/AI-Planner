@@ -52,7 +52,7 @@ export default function InsightsPage() {
     // Count all tasks in history + today
     const allTasks = [...history, ...today]
     allTasks.forEach((t) => {
-      if (!t.lifeArea) return
+      if (!t.lifeArea || !stats[t.lifeArea]) return
       stats[t.lifeArea].tasks++
       if (t.done) {
         stats[t.lifeArea].done++
