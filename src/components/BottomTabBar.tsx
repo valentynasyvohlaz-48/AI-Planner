@@ -13,18 +13,40 @@ export default function BottomTabBar() {
   const total = today.length
 
   const tabs = [
-    { href: '/capture', icon: '🎤', label: 'Capture', badge: null },
     {
       href: '/inbox',
       icon: '📥',
       label: 'Inbox',
       badge: inbox.length > 0 ? String(inbox.length) : null,
+      accent: false,
     },
     {
       href: '/today',
       icon: '✅',
       label: 'Today',
       badge: total > 0 ? `${done}/${total}` : null,
+      accent: false,
+    },
+    {
+      href: '/capture',
+      icon: '🎤',
+      label: 'Capture',
+      badge: null,
+      accent: true,
+    },
+    {
+      href: '/calendar',
+      icon: '📅',
+      label: 'Calendar',
+      badge: null,
+      accent: false,
+    },
+    {
+      href: '/insights',
+      icon: '✨',
+      label: 'Insights',
+      badge: null,
+      accent: false,
     },
   ]
 
@@ -44,7 +66,11 @@ export default function BottomTabBar() {
             href={tab.href}
             className="flex flex-col items-center justify-center gap-1 w-full h-full relative transition-all duration-150 active:scale-90"
             style={{
-              color: active ? 'var(--accent)' : 'var(--fg-sub)',
+              color: active
+                ? tab.accent
+                  ? 'var(--accent)'
+                  : 'var(--accent)'
+                : 'var(--fg-sub)',
               fontWeight: active ? 600 : 400,
               textDecoration: 'none',
               minWidth: '44px',
@@ -55,15 +81,23 @@ export default function BottomTabBar() {
               style={{
                 filter: active
                   ? 'drop-shadow(0 0 8px rgba(167,139,250,0.8))'
+                  : tab.accent
+                  ? 'drop-shadow(0 0 6px rgba(139,92,246,0.5))'
                   : 'none',
-                transform: active ? 'scale(1.15)' : 'scale(1)',
+                transform: active ? 'scale(1.15)' : tab.accent ? 'scale(1.08)' : 'scale(1)',
               }}
             >
               {tab.icon}
             </span>
             <span
               className="text-[11px] font-medium tracking-wide"
-              style={{ color: active ? 'var(--accent)' : 'var(--fg-dim)' }}
+              style={{
+                color: active
+                  ? 'var(--accent)'
+                  : tab.accent
+                  ? 'rgba(167,139,250,0.7)'
+                  : 'var(--fg-dim)',
+              }}
             >
               {tab.label}
             </span>
@@ -71,7 +105,7 @@ export default function BottomTabBar() {
             {/* Badge */}
             {tab.badge && (
               <span
-                className="absolute top-1.5 right-3 text-[10px] font-bold rounded-full px-1.5 py-px leading-none"
+                className="absolute top-1.5 right-1 text-[10px] font-bold rounded-full px-1.5 py-px leading-none"
                 style={{
                   background: 'rgba(139,92,246,0.75)',
                   backdropFilter: 'blur(8px)',

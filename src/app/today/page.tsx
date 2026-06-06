@@ -1,13 +1,26 @@
 'use client'
 
 import Link from 'next/link'
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
+import dynamic from 'next/dynamic'
 import { usePlannerStore } from '@/store/usePlannerStore'
 import TaskItem from '@/components/TaskItem'
 import ProgressBar from '@/components/ProgressBar'
 
+const DailyDebrief = dynamic(() => import('@/components/DailyDebrief'), { ssr: false })
+
 export default function TodayPage() {
   const today = usePlannerStore((s) => s.today)
+  const lastDebriefDate = usePlannerStore((s) => s.lastDebriefDate)
+  const [showDebrief, setShowDebrief] = useState(false)
+
+  useEffect(() => {
+    const hour = new Date().getHours()
+    const todayDate = new Date().toISOString().slice(0, 10)
+    if (hour >= 19 && lastDebriefDate !== todayDate && today.length > 0) {
+      setShowDebrief(true)
+    }
+  }, [today.length, lastDebriefDate])
 
   const { pending, done } = useMemo(() => ({
     pending: today.filter((t) => !t.done),
@@ -51,6 +64,10 @@ export default function TodayPage() {
 
   return (
     <div>
+      {showDebrief && (
+        <DailyDebrief onClose={() => setShowDebrief(false)} />
+      )}
+
       <h1
         className="text-3xl font-bold tracking-tight mb-5"
         style={{ color: 'var(--fg)', textShadow: '0 2px 16px rgba(0,0,0,0.4)' }}
@@ -67,6 +84,29 @@ export default function TodayPage() {
         {done.map((task) => (
           <TaskItem key={task.id} task={task} />
         ))}
+      </div>
+
+      {/* Debrief button — always visible when tasks exist */}
+      <div style={{ marginTop: 24 }}>
+        <button
+          onClick={() => setShowDebrief(true)}
+          style={{
+            width: '100%',
+            padding: '14px',
+            borderRadius: 18,
+            fontSize: 15,
+            fontWeight: 600,
+            cursor: 'pointer',
+            background: 'rgba(255,255,255,0.08)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            border: '1px solid rgba(255,255,255,0.18)',
+            color: 'var(--fg-sub)',
+            minHeight: 52,
+          }}
+        >
+          🌙 Розібрати день
+        </button>
       </div>
     </div>
   )

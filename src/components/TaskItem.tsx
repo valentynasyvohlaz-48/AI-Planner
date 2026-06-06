@@ -1,9 +1,11 @@
 'use client'
 
-import { Task, usePlannerStore } from '@/store/usePlannerStore'
+import { Task, usePlannerStore, AREA_CONFIG } from '@/store/usePlannerStore'
 
 export default function TaskItem({ task }: { task: Task }) {
   const toggleDone = usePlannerStore((s) => s.toggleDone)
+
+  const areaColor = task.lifeArea ? AREA_CONFIG[task.lifeArea].color : null
 
   return (
     <button
@@ -22,6 +24,7 @@ export default function TaskItem({ task }: { task: Task }) {
         opacity: task.done ? 0.45 : 1,
         minHeight: '52px',
         textAlign: 'left',
+        borderLeft: areaColor ? `3px solid ${areaColor}` : undefined,
       }}
     >
       {/* Checkbox */}

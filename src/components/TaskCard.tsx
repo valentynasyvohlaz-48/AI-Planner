@@ -2,6 +2,7 @@
 
 import { Task, usePlannerStore } from '@/store/usePlannerStore'
 import { useState } from 'react'
+import LifeAreaBadge from './LifeAreaBadge'
 
 export default function TaskCard({ task }: { task: Task }) {
   const moveToToday    = usePlannerStore((s) => s.moveToToday)
@@ -59,6 +60,8 @@ export default function TaskCard({ task }: { task: Task }) {
             📅 {task.deadline}
           </span>
         )}
+
+        <LifeAreaBadge area={task.lifeArea} small />
       </div>
 
       {/* Title */}
