@@ -35,30 +35,35 @@ export default function CapturePage() {
     }
   }
 
-  return (
-    <div className="flex flex-col gap-5">
-      <h1
-        className="text-3xl font-bold"
-        style={{ color: 'var(--fg)' }}
-      >
-        Що в голові?
-      </h1>
+  const hasText = text.trim().length > 0
+  const canSubmit = hasText && !loading
 
+  return (
+    <div className="flex flex-col gap-6">
+      {/* Header */}
+      <div>
+        <h1
+          className="text-3xl font-bold tracking-tight"
+          style={{ color: 'var(--fg)', textShadow: '0 2px 16px rgba(0,0,0,0.4)' }}
+        >
+          Що в голові?
+        </h1>
+        <p className="text-sm mt-1" style={{ color: 'var(--fg-sub)' }}>
+          Вилий думки — AI розбере по задачах
+        </p>
+      </div>
+
+      {/* Textarea */}
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Написати Анні, доробити презу, забукати зал, дзвінок о 15…"
         rows={8}
-        className="w-full rounded-2xl p-4 resize-none outline-none transition-shadow"
+        className="glass-input w-full rounded-3xl p-5 resize-none transition-all duration-200"
         style={{
-          background: 'var(--card)',
-          border: '1px solid var(--border)',
-          color: 'var(--fg)',
-          fontSize: '18px',
-          lineHeight: '1.6',
+          fontSize: '17px',
+          lineHeight: '1.65',
         }}
-        onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--accent)')}
-        onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--border)')}
       />
 
       {/* Mic button */}
@@ -66,29 +71,51 @@ export default function CapturePage() {
         <MicButton onTranscript={handleTranscript} />
       </div>
 
+      {/* Error */}
       {error && (
-        <p className="text-sm text-center" style={{ color: 'var(--must)' }}>
+        <div
+          className="rounded-2xl px-4 py-3 text-sm text-center"
+          style={{
+            background: 'var(--must-bg)',
+            border: '1px solid var(--must-border)',
+            color: 'var(--must)',
+          }}
+        >
           {error}
-        </p>
+        </div>
       )}
 
       {/* Process button */}
       <button
         onClick={handleProcess}
-        disabled={!text.trim() || loading}
-        className="w-full py-4 rounded-2xl font-semibold text-base transition-all active:scale-[0.98]"
-        style={{
-          background: text.trim() && !loading ? 'var(--accent)' : 'var(--border)',
-          color: text.trim() && !loading ? '#fff' : 'var(--nice)',
-          cursor: text.trim() && !loading ? 'pointer' : 'not-allowed',
-          minHeight: '56px',
-        }}
+        disabled={!canSubmit}
+        className="w-full py-4 rounded-3xl font-semibold text-base transition-all duration-200 active:scale-[0.97]"
+        style={
+          canSubmit
+            ? {
+                background: 'linear-gradient(135deg, rgba(139,92,246,0.78) 0%, rgba(99,102,241,0.78) 100%)',
+                backdropFilter: 'blur(16px)',
+                WebkitBackdropFilter: 'blur(16px)',
+                border: '1px solid rgba(139,92,246,0.52)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.32), 0 4px 24px rgba(139,92,246,0.38)',
+                color: '#fff',
+                cursor: 'pointer',
+                minHeight: '56px',
+              }
+            : {
+                background: 'rgba(255,255,255,0.06)',
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)',
+                border: '1px solid rgba(255,255,255,0.10)',
+                color: 'var(--fg-dim)',
+                cursor: 'not-allowed',
+                minHeight: '56px',
+              }
+        }
       >
         {loading ? (
           <span className="flex items-center justify-center gap-2">
-            <span
-              className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"
-            />
+            <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
             AI розбирає задачі…
           </span>
         ) : (

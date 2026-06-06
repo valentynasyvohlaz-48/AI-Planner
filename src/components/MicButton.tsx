@@ -6,7 +6,6 @@ interface MicButtonProps {
   onTranscript: (text: string) => void
 }
 
-// Web Speech API types (not in TS lib by default)
 interface ISpeechRecognition extends EventTarget {
   lang: string
   continuous: boolean
@@ -83,22 +82,45 @@ export default function MicButton({ onTranscript }: MicButtonProps) {
   }
 
   return (
-    <button
-      onClick={toggle}
-      className="relative flex items-center justify-center rounded-full transition-transform active:scale-95"
-      style={{
-        width: '64px',
-        height: '64px',
-        background: active ? 'var(--accent)' : 'var(--border)',
-        color: active ? '#fff' : 'var(--fg)',
-        fontSize: '28px',
-        border: 'none',
-        cursor: 'pointer',
-      }}
-      aria-label={active ? 'Зупинити запис' : 'Почати запис'}
-    >
-      {active && <span className="mic-pulse" aria-hidden />}
-      🎤
-    </button>
+    <div className="flex flex-col items-center gap-2">
+      <button
+        onClick={toggle}
+        className="relative flex items-center justify-center rounded-full transition-all duration-200 active:scale-90"
+        style={{
+          width: '68px',
+          height: '68px',
+          fontSize: '28px',
+          border: 'none',
+          cursor: 'pointer',
+          ...(active
+            ? {
+                background: 'linear-gradient(135deg, rgba(139,92,246,0.88) 0%, rgba(79,70,229,0.88) 100%)',
+                backdropFilter: 'blur(16px)',
+                WebkitBackdropFilter: 'blur(16px)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.32), 0 4px 24px rgba(139,92,246,0.55)',
+                outline: '2px solid rgba(139,92,246,0.50)',
+                outlineOffset: '3px',
+              }
+            : {
+                background: 'linear-gradient(145deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.07) 100%)',
+                backdropFilter: 'blur(24px) saturate(200%)',
+                WebkitBackdropFilter: 'blur(24px) saturate(200%)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.45), 0 4px 20px rgba(0,0,0,0.22)',
+                outline: '1px solid rgba(255,255,255,0.22)',
+                outlineOffset: '0px',
+              }),
+        }}
+        aria-label={active ? 'Зупинити запис' : 'Почати запис'}
+      >
+        {active && <span className="mic-pulse" aria-hidden />}
+        🎤
+      </button>
+      <span
+        className="text-xs font-medium transition-colors duration-150"
+        style={{ color: active ? 'var(--accent)' : 'var(--fg-dim)' }}
+      >
+        {active ? 'Слухаю…' : 'Голос'}
+      </span>
+    </div>
   )
 }

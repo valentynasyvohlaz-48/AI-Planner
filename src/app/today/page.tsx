@@ -9,27 +9,39 @@ import ProgressBar from '@/components/ProgressBar'
 export default function TodayPage() {
   const today = usePlannerStore((s) => s.today)
 
-  const { pending, done } = useMemo(() => {
-    return {
-      pending: today.filter((t) => !t.done),
-      done: today.filter((t) => t.done),
-    }
-  }, [today])
+  const { pending, done } = useMemo(() => ({
+    pending: today.filter((t) => !t.done),
+    done:    today.filter((t) =>  t.done),
+  }), [today])
 
   if (today.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 pt-20 text-center">
-        <span className="text-6xl">🗓️</span>
-        <h2 className="text-xl font-semibold" style={{ color: 'var(--fg)' }}>
-          Немає задач
-        </h2>
-        <p className="text-base" style={{ color: 'var(--nice)' }}>
-          Іди в Inbox і постав задачі на сьогодні
-        </p>
+      <div className="flex flex-col items-center justify-center gap-5 pt-24 text-center">
+        <span className="text-6xl drop-shadow-lg">🗓️</span>
+        <div>
+          <h2
+            className="text-xl font-semibold"
+            style={{ color: 'var(--fg)', textShadow: '0 2px 12px rgba(0,0,0,0.4)' }}
+          >
+            Немає задач
+          </h2>
+          <p className="text-sm mt-1" style={{ color: 'var(--fg-sub)' }}>
+            Іди в Inbox і постав задачі на сьогодні
+          </p>
+        </div>
         <Link
           href="/inbox"
-          className="mt-2 px-6 py-3 rounded-2xl font-semibold text-white"
-          style={{ background: 'var(--accent)', minHeight: '44px', display: 'flex', alignItems: 'center' }}
+          className="px-6 py-3 rounded-2xl font-semibold text-white transition-all active:scale-95"
+          style={{
+            background: 'linear-gradient(135deg, rgba(139,92,246,0.78) 0%, rgba(99,102,241,0.78) 100%)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            border: '1px solid rgba(139,92,246,0.52)',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3), 0 4px 20px rgba(139,92,246,0.35)',
+            minHeight: '44px',
+            display: 'flex',
+            alignItems: 'center',
+          }}
         >
           → Inbox
         </Link>
@@ -39,13 +51,16 @@ export default function TodayPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-4" style={{ color: 'var(--fg)' }}>
+      <h1
+        className="text-3xl font-bold tracking-tight mb-5"
+        style={{ color: 'var(--fg)', textShadow: '0 2px 16px rgba(0,0,0,0.4)' }}
+      >
         Сьогодні
       </h1>
 
       <ProgressBar done={done.length} total={today.length} />
 
-      <div>
+      <div className="flex flex-col gap-2 mt-4">
         {pending.map((task) => (
           <TaskItem key={task.id} task={task} />
         ))}

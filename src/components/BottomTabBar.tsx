@@ -9,16 +9,11 @@ export default function BottomTabBar() {
   const inbox = usePlannerStore((s) => s.inbox)
   const today = usePlannerStore((s) => s.today)
 
-  const done = today.filter((t) => t.done).length
+  const done  = today.filter((t) => t.done).length
   const total = today.length
 
   const tabs = [
-    {
-      href: '/capture',
-      icon: '🎤',
-      label: 'Capture',
-      badge: null,
-    },
+    { href: '/capture', icon: '🎤', label: 'Capture', badge: null },
     {
       href: '/inbox',
       icon: '📥',
@@ -35,12 +30,10 @@ export default function BottomTabBar() {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 flex justify-around items-center border-t z-50"
+      className="glass-nav fixed bottom-0 left-0 right-0 flex justify-around items-center z-50"
       style={{
-        background: 'var(--bg)',
-        borderColor: 'var(--border)',
         paddingBottom: 'env(safe-area-inset-bottom)',
-        height: '64px',
+        height: '72px',
       }}
     >
       {tabs.map((tab) => {
@@ -49,28 +42,57 @@ export default function BottomTabBar() {
           <Link
             key={tab.href}
             href={tab.href}
-            className="flex flex-col items-center justify-center gap-0.5 w-full h-full relative"
+            className="flex flex-col items-center justify-center gap-1 w-full h-full relative transition-all duration-150 active:scale-90"
             style={{
-              color: active ? 'var(--accent)' : 'var(--nice)',
+              color: active ? 'var(--accent)' : 'var(--fg-sub)',
               fontWeight: active ? 600 : 400,
               textDecoration: 'none',
               minWidth: '44px',
             }}
           >
-            <span className="text-xl">{tab.icon}</span>
-            <span className="text-xs">{tab.label}</span>
+            <span
+              className="text-xl transition-transform duration-150"
+              style={{
+                filter: active
+                  ? 'drop-shadow(0 0 8px rgba(167,139,250,0.8))'
+                  : 'none',
+                transform: active ? 'scale(1.15)' : 'scale(1)',
+              }}
+            >
+              {tab.icon}
+            </span>
+            <span
+              className="text-[11px] font-medium tracking-wide"
+              style={{ color: active ? 'var(--accent)' : 'var(--fg-dim)' }}
+            >
+              {tab.label}
+            </span>
+
+            {/* Badge */}
             {tab.badge && (
               <span
-                className="absolute top-1 right-4 text-[10px] font-bold rounded-full px-1.5 py-0.5 leading-none"
-                style={{ background: 'var(--accent)', color: '#fff' }}
+                className="absolute top-1.5 right-3 text-[10px] font-bold rounded-full px-1.5 py-px leading-none"
+                style={{
+                  background: 'rgba(139,92,246,0.75)',
+                  backdropFilter: 'blur(8px)',
+                  border: '1px solid rgba(139,92,246,0.5)',
+                  color: '#fff',
+                }}
               >
                 {tab.badge}
               </span>
             )}
+
+            {/* Active indicator pill */}
             {active && (
               <span
-                className="absolute bottom-0 left-1/4 right-1/4 h-0.5 rounded-full"
-                style={{ background: 'var(--accent)' }}
+                className="absolute bottom-1 rounded-full"
+                style={{
+                  width: '20px',
+                  height: '3px',
+                  background: 'var(--accent)',
+                  boxShadow: '0 0 8px rgba(167,139,250,0.7)',
+                }}
               />
             )}
           </Link>

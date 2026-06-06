@@ -14,12 +14,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="uk" className="h-full">
-      <body className="h-full" style={{ background: "var(--bg)", color: "var(--fg)" }}>
+      <body className="h-full">
         <div
           className="mx-auto flex flex-col h-full"
           style={{ maxWidth: "430px" }}
         >
-          <main className="flex-1 overflow-y-auto pb-20 px-4 pt-6">
+          <main className="flex-1 overflow-y-auto pb-24 px-4 pt-8">
             {children}
           </main>
           <BottomTabBar />
