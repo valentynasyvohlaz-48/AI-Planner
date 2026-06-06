@@ -28,7 +28,8 @@ export default function CapturePage() {
       router.push('/inbox')
     } catch (e) {
       console.error(e)
-      setError('Помилка обробки. Перевір API ключ або спробуй ще раз.')
+      const msg = e instanceof Error ? e.message : String(e)
+      setError(`Помилка: ${msg}`)
     } finally {
       setLoading(false)
     }
