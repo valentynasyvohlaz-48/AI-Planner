@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { parseTasksWithClaude } from '@/app/actions'
 import { usePlannerStore } from '@/store/usePlannerStore'
@@ -13,27 +13,56 @@ export default function CapturePage() {
   const addToInbox = usePlannerStore((s) => s.addToInbox)
   const router = useRouter()
 
-  const handleTranscript = useCallback((transcript: string) => {
-    setText((prev) => (prev ? prev + ' ' + transcript : transcript))
-  }, [])
+  /**
+   * textRef always mirrors the `text` state synchronously.
+   * This lets async callbacks (onVoiceEnd) read the latest value
+   * without capturing a stale closure over `text`.
+   */
+  const textRef = useRef('')
+  const loadingRef = useRef(false)
 
-  const handleProcess = async () => {
-    if (!text.trim()) return
+  const setTextSynced = (val: string) => {
+    textRef.current = val
+    setText(val)
+  }
+
+  // Core processing logic — reads from ref, never stale
+  const processText = useCallback(async () => {
+    const toProcess = textRef.current.trim()
+    if (!toProcess || loadingRef.current) return
+
+    loadingRef.current = true
     setLoading(true)
     setError(null)
+
     try {
-      const tasks = await parseTasksWithClaude(text.trim())
+      const tasks = await parseTasksWithClaude(toProcess)
       addToInbox(tasks)
-      setText('')
+      setTextSynced('')
       router.push('/inbox')
     } catch (e) {
       console.error(e)
       const msg = e instanceof Error ? e.message : String(e)
       setError(`Помилка: ${msg}`)
     } finally {
+      loadingRef.current = false
       setLoading(false)
     }
-  }
+  }, [addToInbox, router])
+
+  // Called by MicButton when speech recognition ends
+  const handleVoiceEnd = useCallback(() => {
+    if (!textRef.current.trim() || loadingRef.current) return
+    // Small pause so the user sees the transcript before the spinner appears
+    setTimeout(processText, 400)
+  }, [processText])
+
+  const handleTranscript = useCallback((transcript: string) => {
+    const next = textRef.current
+      ? textRef.current + ' ' + transcript
+      : transcript
+    setTextSynced(next)
+  }, [])
 
   const hasText = text.trim().length > 0
   const canSubmit = hasText && !loading
@@ -56,19 +85,22 @@ export default function CapturePage() {
       {/* Textarea */}
       <textarea
         value={text}
-        onChange={(e) => setText(e.target.value)}
+        onChange={(e) => setTextSynced(e.target.value)}
         placeholder="Написати Анні, доробити презу, забукати зал, дзвінок о 15…"
         rows={8}
         className="glass-input w-full rounded-3xl p-5 resize-none transition-all duration-200"
-        style={{
-          fontSize: '17px',
-          lineHeight: '1.65',
-        }}
+        style={{ fontSize: '17px', lineHeight: '1.65' }}
       />
 
-      {/* Mic button */}
-      <div className="flex justify-center">
-        <MicButton onTranscript={handleTranscript} />
+      {/* Mic — auto-processes on voice end */}
+      <div className="flex flex-col items-center gap-1">
+        <MicButton
+          onTranscript={handleTranscript}
+          onVoiceEnd={handleVoiceEnd}
+        />
+        <p className="text-xs" style={{ color: 'var(--fg-dim)' }}>
+          Зупини запис — AI обробить автоматично
+        </p>
       </div>
 
       {/* Error */}
@@ -85,9 +117,9 @@ export default function CapturePage() {
         </div>
       )}
 
-      {/* Process button */}
+      {/* Manual process button — for typed input */}
       <button
-        onClick={handleProcess}
+        onClick={processText}
         disabled={!canSubmit}
         className="w-full py-4 rounded-3xl font-semibold text-base transition-all duration-200 active:scale-[0.97]"
         style={

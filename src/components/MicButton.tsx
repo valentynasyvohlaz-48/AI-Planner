@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from 'react'
 
 interface MicButtonProps {
   onTranscript: (text: string) => void
+  /** Fires when recognition stops (user taps to stop OR silence timeout) */
+  onVoiceEnd?: () => void
 }
 
 interface ISpeechRecognition extends EventTarget {
@@ -42,38 +44,47 @@ declare global {
   }
 }
 
-export default function MicButton({ onTranscript }: MicButtonProps) {
+export default function MicButton({ onTranscript, onVoiceEnd }: MicButtonProps) {
   const [supported, setSupported] = useState(false)
   const [active, setActive] = useState(false)
   const recognitionRef = useRef<ISpeechRecognition | null>(null)
+  // Keep latest callbacks in refs so recognition handlers don't go stale
+  const onTranscriptRef = useRef(onTranscript)
+  const onVoiceEndRef   = useRef(onVoiceEnd)
+  useEffect(() => { onTranscriptRef.current = onTranscript }, [onTranscript])
+  useEffect(() => { onVoiceEndRef.current   = onVoiceEnd   }, [onVoiceEnd])
 
   useEffect(() => {
     const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition
-    if (SpeechRecognitionAPI) {
-      setSupported(true)
-      const recognition = new SpeechRecognitionAPI()
-      recognition.lang = 'uk-UA'
-      recognition.continuous = true
-      recognition.interimResults = false
+    if (!SpeechRecognitionAPI) return
+    setSupported(true)
 
-      recognition.onresult = (event: ISpeechRecognitionEvent) => {
-        const transcript = Array.from({ length: event.results.length })
-          .map((_, i) => event.results[i][0].transcript)
-          .join(' ')
-        onTranscript(transcript)
-      }
+    const recognition = new SpeechRecognitionAPI()
+    recognition.lang = 'uk-UA'
+    recognition.continuous = true
+    recognition.interimResults = false
 
-      recognition.onend = () => setActive(false)
-      recognitionRef.current = recognition
+    recognition.onresult = (event: ISpeechRecognitionEvent) => {
+      const transcript = Array.from({ length: event.results.length })
+        .map((_, i) => event.results[i][0].transcript)
+        .join(' ')
+      onTranscriptRef.current(transcript)
     }
-  }, [onTranscript])
+
+    recognition.onend = () => {
+      setActive(false)
+      onVoiceEndRef.current?.()
+    }
+
+    recognitionRef.current = recognition
+  }, []) // runs once — callbacks accessed via refs
 
   if (!supported) return null
 
   const toggle = () => {
     if (!recognitionRef.current) return
     if (active) {
-      recognitionRef.current.stop()
+      recognitionRef.current.stop() // triggers onend → onVoiceEnd
       setActive(false)
     } else {
       recognitionRef.current.start()
