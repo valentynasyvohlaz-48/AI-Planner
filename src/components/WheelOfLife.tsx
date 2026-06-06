@@ -6,8 +6,8 @@ interface WheelOfLifeProps {
   scores: Record<LifeArea, number>
 }
 
-const MAX_RADIUS = 100
-const LABEL_RADIUS = 118
+const MAX_RADIUS = 90
+const LABEL_RADIUS = 110
 
 // Angles for 6 axes (in degrees), starting at top, going clockwise
 // LIFE_AREAS: career, health, learning, relationships, hobby, personal
@@ -37,9 +37,9 @@ export default function WheelOfLife({ scores }: WheelOfLifeProps) {
 
   return (
     <svg
-      viewBox="-130 -130 260 260"
+      viewBox="-165 -150 330 310"
       width="100%"
-      style={{ maxWidth: 320, display: 'block', margin: '0 auto' }}
+      style={{ maxWidth: 340, display: 'block', margin: '0 auto', overflow: 'visible' }}
     >
       {/* Grid hexagons */}
       {gridLevels.map((level) => (
@@ -115,18 +115,18 @@ export default function WheelOfLife({ scores }: WheelOfLifeProps) {
               y={(y - 6).toFixed(2)}
               textAnchor={textAnchor}
               fill={cfg.color}
-              fontSize="13"
+              fontSize="14"
               fontWeight="600"
             >
               {cfg.emoji}
             </text>
             <text
               x={x.toFixed(2)}
-              y={(y + 8).toFixed(2)}
+              y={(y + 10).toFixed(2)}
               textAnchor={textAnchor}
-              fill="rgba(255,255,255,0.65)"
-              fontSize="9"
-              fontWeight="500"
+              fill="rgba(255,255,255,0.80)"
+              fontSize="11"
+              fontWeight="600"
             >
               {cfg.label}
             </text>
