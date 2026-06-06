@@ -137,6 +137,7 @@ export const usePlannerStore = create<Store>()(
     {
       name: 'ai-planner-store',
       version: 3,
+      skipHydration: true,
       migrate: (persistedState: unknown, version: number) => {
         try {
           const state = persistedState as Partial<Store> & {

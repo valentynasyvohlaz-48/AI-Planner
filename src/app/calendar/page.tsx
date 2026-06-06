@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect, useCallback, CSSProperties } from 'react'
+import { useState, useRef, useEffect, useCallback, useMemo, CSSProperties } from 'react'
 import { usePlannerStore, AREA_CONFIG, Task } from '@/store/usePlannerStore'
 import { optimizeSchedule } from '@/app/actions'
 
@@ -497,10 +497,15 @@ function YearView({ year, tasksForDate, onMonthClick }: {
    MAIN PAGE
 ═══════════════════════════════════════════════ */
 export default function CalendarPage() {
-  const allTasks     = usePlannerStore(s => [...s.today, ...s.history, ...s.inbox])
-  const todayTasks   = usePlannerStore(s => s.today)
+  const storeToday   = usePlannerStore(s => s.today)
+  const storeHistory = usePlannerStore(s => s.history)
+  const storeInbox   = usePlannerStore(s => s.inbox)
   const scheduleTask = usePlannerStore(s => s.scheduleTask)
   const replaceToday = usePlannerStore(s => s.replaceToday)
+
+  // Stable merged array — only recomputed when underlying arrays change
+  const allTasks   = useMemo(() => [...storeToday, ...storeHistory, ...storeInbox], [storeToday, storeHistory, storeInbox])
+  const todayTasks = storeToday
 
   const [view, setView] = useState<CalView>('week')
   const [date, setDate] = useState<Date>(nowDate())
