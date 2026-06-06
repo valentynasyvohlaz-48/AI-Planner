@@ -53,8 +53,8 @@ export default function CapturePage() {
   // Called by MicButton when speech recognition ends
   const handleVoiceEnd = useCallback(() => {
     if (!textRef.current.trim() || loadingRef.current) return
-    // Small pause so the user sees the transcript before the spinner appears
-    setTimeout(processText, 400)
+    // Mic button already showed a 3-second countdown; start immediately
+    processText()
   }, [processText])
 
   const handleTranscript = useCallback((transcript: string) => {
